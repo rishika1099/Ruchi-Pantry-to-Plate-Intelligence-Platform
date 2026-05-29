@@ -1,0 +1,48 @@
+:root {
+  /* Luxury food palette */
+  --bg:        #0E0B07;   /* deep roasted espresso */
+  --bg-2:      #141009;
+  --cream:     #F6EEDD;   /* warm ivory */
+  --saffron:   #F4A33A;   /* saffron gold */
+  --terra:     #E26A4B;   /* terracotta */
+  --sage:      #93A87E;   /* herb sage */
+  --plum:      #7C2B3E;   /* deep wine */
+  --gold:      #D9B26A;   /* antique gold */
+  --text:      #EDE4D2;
+  --muted:     rgba(237, 228, 210, 0.55);
+  --faint:     rgba(237, 228, 210, 0.32);
+  --card:      rgba(246, 238, 221, 0.035);
+  --card-2:    rgba(246, 238, 221, 0.06);
+  --border:    rgba(246, 238, 221, 0.10);
+  --border-hi: rgba(244, 163, 58, 0.40);
+  --serif:     'Fraunces', 'Cormorant Garamond', Georgia, serif;
+  --display:   'Cormorant Garamond', Georgia, serif;
+  --sans:      'Inter', system-ui, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--saffron); color: var(--bg); }
+
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+button { font-family: inherit; cursor: pointer; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--saffron), var(--terra));
+  border-radius: 10px;
+  border: 2px solid var(--bg);
+}
