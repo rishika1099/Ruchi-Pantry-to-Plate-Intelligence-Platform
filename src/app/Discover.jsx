@@ -13,7 +13,7 @@ const STAGES = [
 ]
 
 export default function Discover() {
-  const { saveRecipe } = useStore()
+  const { saveRecipe, auth } = useStore()
   const [url, setUrl] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
@@ -99,6 +99,9 @@ export default function Discover() {
             <button className="btn-soft" onClick={() => setOpen(result)}>View full recipe</button>
             <button className="btn-fill" onClick={() => { if (saveRecipe(result)) setOpen(result) }}>★ Save to Cookbook</button>
           </div>
+          {auth.needsAuth && (
+            <button className="save-hint" onClick={() => auth.openPrompt()}>🔒 Sign in to save this to your cookbook</button>
+          )}
         </motion.div>
       )}
 
