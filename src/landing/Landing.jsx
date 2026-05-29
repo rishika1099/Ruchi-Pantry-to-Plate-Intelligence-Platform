@@ -185,21 +185,6 @@ export default function Landing() {
             <Phone />
           </div>
         </div>
-
-        {/* Design philosophy */}
-        <Reveal className="philosophy">
-          <span className="eyebrow">Designed to delight</span>
-          <p className="philo-lead">
-            Ruchi is built to feel <em>visually exceptional</em>: fluid, physics-based
-            micro-animations on every screen. Ingredient cards that spring into view, recipe
-            steps that slide with natural momentum, a dashboard that animates progress with
-            satisfying feedback.
-          </p>
-          <p className="philo-sub">
-            The cookbook is a living, scrollable gallery, never a static list. Ruchi should
-            feel as good to use as the food it helps you cook tastes to eat.
-          </p>
-        </Reveal>
       </section>
 
       <div className="rule" />
