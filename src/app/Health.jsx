@@ -23,13 +23,13 @@ export default function Health() {
   const [draft, setDraft] = useState(g)
 
   function save() {
-    setGoal({
+    const ok = setGoal({
       calories: Number(draft.calories) || g.calories,
       protein: Number(draft.protein) || g.protein,
       carbs: Number(draft.carbs) || g.carbs,
       fat: Number(draft.fat) || g.fat,
     })
-    setEditing(false)
+    if (ok) setEditing(false)
   }
 
   return (

@@ -94,7 +94,7 @@ export function RecipeModal({ recipe, onClose }) {
               {hasRecipe(recipe.id)
                 ? <button className="btn-soft" onClick={() => removeRecipe(recipe.id)}>★ Saved · Remove</button>
                 : <button className="btn-soft" onClick={() => saveRecipe(recipe)}>☆ Save to Cookbook</button>}
-              <button className="btn-fill" onClick={() => { logMeal(recipe); onClose() }}>+ Log this meal</button>
+              <button className="btn-fill" onClick={() => { if (logMeal(recipe)) onClose() }}>+ Log this meal</button>
             </div>
             {recipe.source && <div className="modal-source">Source: {recipe.source}</div>}
           </motion.div>

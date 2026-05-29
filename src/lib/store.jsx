@@ -39,6 +39,15 @@ export function StoreProvider({ children }) {
   const [state, setState] = useState(load)
   const [user, setUser] = useState(null)
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured)
+  const [authPrompt, setAuthPrompt] = useState(false)
+
+  // Saving requires an account when auth is configured. Guests can browse and
+  // generate freely, but persisting actions opens the sign-in prompt instead.
+  const needsAuth = () => isSupabaseConfigured && !user
+  const guard = () => {
+    if (needsAuth()) { setAuthPrompt(true); return false }
+    return true
+  }
 
   // Guards so the debounced cloud push does not fire during the initial
   // login hydration (which would clobber remote data with local state).
@@ -129,6 +138,10 @@ export function StoreProvider({ children }) {
       user,
       ready: authReady,
       configured: isSupabaseConfigured,
+      needsAuth: needsAuth(),
+      promptOpen: authPrompt,
+      openPrompt: () => setAuthPrompt(true),
+      closePrompt: () => setAuthPrompt(false),
       async signUp(email, password, name) {
         if (!isSupabaseConfigured) throw new Error('Auth is not configured.')
         const { data, error } = await supabase.auth.signUp({
@@ -138,12 +151,14 @@ export function StoreProvider({ children }) {
         })
         if (error) throw error
         if (name) setState(s => ({ ...s, profile: { ...s.profile, name } }))
+        if (data.session) setAuthPrompt(false)
         return data
       },
       async signIn(email, password) {
         if (!isSupabaseConfigured) throw new Error('Auth is not configured.')
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
+        setAuthPrompt(false)
         return data
       },
       async signOut() {
@@ -155,13 +170,17 @@ export function StoreProvider({ children }) {
 
     // cookbook
     saveRecipe(recipe) {
+      if (!guard()) return false
       setState(s => {
         if (s.cookbook.some(r => r.id === recipe.id)) return s
         return { ...s, cookbook: [recipe, ...s.cookbook] }
       })
+      return true
     },
     removeRecipe(id) {
+      if (!guard()) return false
       setState(s => ({ ...s, cookbook: s.cookbook.filter(r => r.id !== id) }))
+      return true
     },
     hasRecipe(id) {
       return state.cookbook.some(r => r.id === id)
@@ -169,16 +188,21 @@ export function StoreProvider({ children }) {
 
     // pantry
     addPantry(item) {
+      if (!guard()) return false
       const v = item.trim().toLowerCase()
-      if (!v) return
+      if (!v) return false
       setState(s => s.pantry.includes(v) ? s : { ...s, pantry: [...s.pantry, v] })
+      return true
     },
     removePantry(item) {
+      if (!guard()) return false
       setState(s => ({ ...s, pantry: s.pantry.filter(p => p !== item) }))
+      return true
     },
 
     // health log
     logMeal(recipe) {
+      if (!guard()) return false
       const d = todayKey()
       const entry = {
         id: recipe.id + '-' + Date.now(),
@@ -189,16 +213,23 @@ export function StoreProvider({ children }) {
         at: Date.now(),
       }
       setState(s => ({ ...s, log: { ...s.log, [d]: [...(s.log[d] || []), entry] } }))
+      return true
     },
     removeLog(entryId) {
+      if (!guard()) return false
       const d = todayKey()
       setState(s => ({ ...s, log: { ...s.log, [d]: (s.log[d] || []).filter(e => e.id !== entryId) } }))
+      return true
     },
     setGoal(goal) {
+      if (!guard()) return false
       setState(s => ({ ...s, goal: { ...s.goal, ...goal } }))
+      return true
     },
     setProfile(profile) {
+      if (!guard()) return false
       setState(s => ({ ...s, profile: { ...s.profile, ...profile } }))
+      return true
     },
     todayLog() {
       return state.log[todayKey()] || []

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useStore } from '../lib/store.jsx'
@@ -16,7 +15,6 @@ const NAV = [
 export default function AppShell() {
   const { state, auth } = useStore()
   const loc = useLocation()
-  const [authOpen, setAuthOpen] = useState(false)
 
   const signedIn = Boolean(auth.user)
   const displayName = state.profile.name || auth.user?.email?.split('@')[0] || 'Guest'
@@ -48,13 +46,13 @@ export default function AppShell() {
           {auth.configured && (
             signedIn
               ? <button className="side-auth" onClick={() => auth.signOut()}>Sign out</button>
-              : <button className="side-auth" onClick={() => setAuthOpen(true)}>Sign in</button>
+              : <button className="side-auth" onClick={() => auth.openPrompt()}>Sign in</button>
           )}
           <Link to="/" className="side-exit">← Landing</Link>
         </div>
       </aside>
 
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <AuthModal open={auth.promptOpen} onClose={() => auth.closePrompt()} />
 
       {/* mobile tab bar */}
       <nav className="tabbar">

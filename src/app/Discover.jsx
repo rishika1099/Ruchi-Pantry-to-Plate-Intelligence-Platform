@@ -97,7 +97,7 @@ export default function Discover() {
           {result.note && <p className="modal-note">{result.note}</p>}
           <div className="disc-result-actions">
             <button className="btn-soft" onClick={() => setOpen(result)}>View full recipe</button>
-            <button className="btn-fill" onClick={() => { saveRecipe(result); setOpen(result) }}>★ Save to Cookbook</button>
+            <button className="btn-fill" onClick={() => { if (saveRecipe(result)) setOpen(result) }}>★ Save to Cookbook</button>
           </div>
         </motion.div>
       )}
