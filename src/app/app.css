@@ -291,12 +291,19 @@
 .auth-switch button { background: none; border: none; cursor: pointer; font-size: 0.84rem; font-weight: 700; color: var(--saffron); }
 .auth-switch button:hover { text-decoration: underline; }
 
-/* ─────────── SAVE HINT (guests) ─────────── */
-.save-hint {
-  display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
-  padding: 7px 12px; border-radius: 100px; cursor: pointer;
-  font-size: 0.76rem; font-weight: 600; color: var(--gold);
-  background: rgba(217,178,106,0.07); border: 1px solid rgba(217,178,106,0.2);
-  transition: background 0.2s, border-color 0.2s;
+/* ─────────── AUTH GATE (locked sections) ─────────── */
+.screen.gate {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 60vh; text-align: center;
 }
-.save-hint:hover { background: rgba(217,178,106,0.13); border-color: rgba(217,178,106,0.35); }
+.gate-card {
+  max-width: 420px; padding: 40px 32px; border-radius: 22px;
+  background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07);
+}
+.gate-ic {
+  font-size: 2.4rem; width: 76px; height: 76px; margin: 0 auto 18px;
+  display: flex; align-items: center; justify-content: center; border-radius: 50%;
+  background: rgba(217,178,106,0.08); border: 1px solid rgba(217,178,106,0.2);
+}
+.gate-card h2 { font-size: 1.5rem; margin-bottom: 10px; }
+.gate-card p { color: var(--muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 24px; }

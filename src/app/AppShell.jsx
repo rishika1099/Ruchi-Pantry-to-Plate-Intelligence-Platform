@@ -17,7 +17,11 @@ export default function AppShell() {
   const loc = useLocation()
 
   const signedIn = Boolean(auth.user)
-  const displayName = state.profile.name || auth.user?.email?.split('@')[0] || 'Guest'
+  // Guests never show a cached profile name (e.g. a stale name from a previous
+  // session). Only a signed-in account resolves to a real name.
+  const displayName = signedIn
+    ? (state.profile.name || auth.user?.email?.split('@')[0] || 'Guest')
+    : (auth.configured ? 'Guest' : (state.profile.name || 'Guest'))
 
   return (
     <div className="shell">

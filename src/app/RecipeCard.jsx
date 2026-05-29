@@ -41,7 +41,7 @@ export function RecipeCard({ recipe, onOpen, index = 0 }) {
 }
 
 export function RecipeModal({ recipe, onClose }) {
-  const { hasRecipe, saveRecipe, removeRecipe, logMeal, auth } = useStore()
+  const { hasRecipe, saveRecipe, removeRecipe, logMeal } = useStore()
   return (
     <AnimatePresence>
       {recipe && (
@@ -96,9 +96,6 @@ export function RecipeModal({ recipe, onClose }) {
                 : <button className="btn-soft" onClick={() => saveRecipe(recipe)}>☆ Save to Cookbook</button>}
               <button className="btn-fill" onClick={() => { if (logMeal(recipe)) onClose() }}>+ Log this meal</button>
             </div>
-            {auth.needsAuth && (
-              <button className="save-hint" onClick={() => auth.openPrompt()}>🔒 Sign in to save recipes and log meals</button>
-            )}
             {recipe.source && <div className="modal-source">Source: {recipe.source}</div>}
           </motion.div>
         </motion.div>

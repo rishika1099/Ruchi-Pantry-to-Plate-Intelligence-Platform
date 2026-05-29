@@ -26,8 +26,8 @@ export default function Phone() {
           <div className="phone-notch" />
           <div className="phone-screen">
             <div className="ph-head">
-              <div className="ph-greet">Good morning<strong>Rishika 👋</strong></div>
-              <div className="ph-avatar">R</div>
+              <div className="ph-greet">Good morning<strong>Maya 👋</strong></div>
+              <div className="ph-avatar">M</div>
             </div>
 
             <div className="ph-goal">

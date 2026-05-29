@@ -15,7 +15,7 @@ function Bar({ label, value, goal, color }) {
 }
 
 export default function Health() {
-  const { state, todayLog, todayTotals, removeLog, setGoal, auth } = useStore()
+  const { state, todayLog, todayTotals, removeLog, setGoal } = useStore()
   const t = todayTotals()
   const g = state.goal
   const log = todayLog()
@@ -43,10 +43,6 @@ export default function Health() {
           {editing ? 'Cancel' : '⚙ Edit goals'}
         </button>
       </header>
-
-      {auth.needsAuth && (
-        <button className="save-hint" onClick={() => auth.openPrompt()}>🔒 Sign in to save your goals and meal log</button>
-      )}
 
       {editing && (
         <div className="goal-edit">
