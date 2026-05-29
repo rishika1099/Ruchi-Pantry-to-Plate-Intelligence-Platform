@@ -13,6 +13,15 @@
 const ENDPOINT =
   process.env.ENDPOINT || 'https://ruchi-app.netlify.app/.netlify/functions/recipe'
 
+// LOCAL=1 invokes the real serverless handler in-process (same production code
+// path) against live OpenAI, using OPENAI_API_KEY from the environment. This
+// lets the eval run without a deployed endpoint.
+const LOCAL = process.env.LOCAL === '1'
+let handler = null
+if (LOCAL) {
+  ({ handler } = await import('../netlify/functions/recipe.js'))
+}
+
 const VIDEO_CASES = [
   'one-pan lemon garlic salmon with asparagus',
   'classic margherita pizza from scratch',
@@ -77,6 +86,13 @@ function quantile(arr, q) {
 
 async function call(payload) {
   const t0 = Date.now()
+  if (LOCAL) {
+    const res = await handler({ httpMethod: 'POST', body: JSON.stringify(payload) })
+    const ms = Date.now() - t0
+    let json = null, parseOk = true
+    try { json = JSON.parse(res.body) } catch { parseOk = false }
+    return { status: res.statusCode, ms, json, parseOk }
+  }
   const res = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

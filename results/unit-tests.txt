@@ -1,0 +1,13 @@
+
+> ruchi-app@0.0.0 test
+> vitest run
+
+
+ RUN  v4.1.7 /Users/rishika/Desktop/Projects/Cook AI/ruchi-app
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  14:20:49
+   Duration  128ms (transform 19ms, setup 0ms, import 26ms, tests 3ms, environment 0ms)
+

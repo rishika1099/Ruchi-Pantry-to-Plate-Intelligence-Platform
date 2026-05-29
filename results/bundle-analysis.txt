@@ -1,0 +1,5 @@
+dist/index.html                     1.07 kB │ gzip:   0.57 kB
+dist/assets/AppRoot-xnNVtplU.css   17.81 kB │ gzip:   3.94 kB
+dist/assets/index-DiilAZSw.css     18.76 kB │ gzip:   4.58 kB
+dist/assets/AppRoot-MCTAZkBD.js   236.03 kB │ gzip:  62.28 kB
+dist/assets/index-CcV5JYWh.js     379.08 kB │ gzip: 122.29 kB

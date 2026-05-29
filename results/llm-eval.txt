@@ -1,0 +1,29 @@
+Endpoint: https://ruchi-app.netlify.app/.netlify/functions/recipe
+
+  [video] ok 4867ms ✓ "One-Pan Lemon Garlic Salmon with Asparagus"
+  [video] ok 6396ms ✓ "Classic Margherita Pizza"
+  [video] ok 4685ms ✓ "Thai Green Curry with Chicken and Basil"
+  [video] ok 6205ms ✓ "Creamy Mushroom Risotto"
+  [video] ok 4391ms ✓ "Beef Tacos with Pico de Gallo"
+  [video] ok 5045ms ✓ "Chocolate Lava Cake for Two"
+  [video] ok 3829ms ✓ "Shakshuka with Feta and Herbs"
+  [video] ok 4796ms ✓ "Butter Chicken with Naan"
+  [pantry] ok 7103ms 2 recipes [eggs,spinach,cheese,onion]
+  [pantry] ok 7602ms 3 recipes [chicken,rice,garlic,soy sauce,broccoli]
+  [pantry] ok 5150ms 2 recipes [pasta,tomatoes,basil,parmesan]
+  [pantry] ok 10590ms 3 recipes [chickpeas,cumin,onion,tomatoes,spinach]
+
+================ LLM EVALUATION REPORT ================
+Requests:                 12  (failed: 0)
+Recipes scored:           18
+Request success rate:     100.0%
+JSON valid (parsable):    100.0%
+Schema complete + typed:  100.0%
+Difficulty enum valid:    100.0%
+Em-dash style violations: 0 (0.0%)
+Macro→calorie |err| mean: 4.3%
+Macro within 15% of kcal: 94.4%
+Pantry count 3-4 OK:      50.0%
+Pantry matched<=have OK:  100.0%
+Latency mean/p50/p95:     5888ms / 5150ms / 10590ms
+=======================================================
