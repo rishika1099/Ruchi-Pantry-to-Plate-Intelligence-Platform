@@ -11,7 +11,7 @@ const initial = () => ({
   pantry: SAMPLE_PANTRY,
   goal: STARTER_GOAL,
   log: {}, // { 'YYYY-MM-DD': [ {id, title, calories, macros, emoji} ] }
-  profile: { name: 'Rishika', diet: 'Balanced', restrictions: [] },
+  profile: { name: 'Guest', diet: 'Balanced', restrictions: [] },
 })
 
 // Only these keys are synced to the cloud; everything else is derived.
@@ -97,13 +97,26 @@ export function StoreProvider({ children }) {
 
       if (!active) return
 
+      // Resolve a display name from the account: signup name, else email prefix.
+      const accountName = user.user_metadata?.name?.trim() || user.email?.split('@')[0] || 'Guest'
+
       if (!error && data?.data && Object.keys(data.data).length) {
-        setState(s => ({ ...initial(), ...data.data, profile: { ...s.profile, ...data.data.profile } }))
+        setState(s => ({
+          ...initial(),
+          ...data.data,
+          profile: {
+            ...s.profile,
+            ...data.data.profile,
+            name: data.data.profile?.name?.trim() || accountName,
+          },
+        }))
       } else {
-        // No cloud data yet: push the current local state up.
+        // No cloud data yet: adopt the account name, then push local state up.
+        const seeded = { ...state, profile: { ...state.profile, name: accountName } }
+        setState(seeded)
         await supabase.from('profiles').upsert({
           id: user.id,
-          data: pickSynced(state),
+          data: pickSynced(seeded),
           updated_at: new Date().toISOString(),
         })
       }
@@ -164,7 +177,9 @@ export function StoreProvider({ children }) {
       async signOut() {
         if (!isSupabaseConfigured) return
         await supabase.auth.signOut()
-        setState(load())
+        // Reset to a fresh guest state so the next visitor does not see the
+        // signed-out user's cached data.
+        setState(initial())
       },
     },
 
