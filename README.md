@@ -20,9 +20,10 @@ food-themed experience.
 | **Cookbook** | Your saved recipes with search and cuisine filters |
 | **Health** | Editable calorie/macro goals plus a running log of today's meals |
 
-State persists in the browser via `localStorage`. AI extraction is powered by a Netlify
-serverless function that calls OpenAI server-side, with a graceful local fallback so the app
-always works even without an API key.
+State persists in the browser via `localStorage` for guests. Signed-in users get a Supabase
+account so their cookbook, pantry, goals, and meal log sync across devices. AI extraction is
+powered by a Netlify serverless function that calls OpenAI server-side, with a graceful local
+fallback so the app always works even without an API key.
 
 ## Tech stack
 
@@ -51,15 +52,36 @@ OPENAI_API_KEY=sk-...
 
 Add it under **Site configuration → Environment variables** (scope: Functions), then redeploy.
 
+### Enabling accounts and sync (optional)
+
+User accounts and cross-device sync are powered by Supabase. Without these keys the app runs
+in guest mode (localStorage only) and stays fully usable.
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. In the SQL Editor, run `supabase/schema.sql` to create the `profiles` table with
+   row-level security.
+3. Copy your project URL and anon key from **Project Settings → API** into `.env.local`
+   (see `.env.example`) for local dev, and into the Netlify site environment variables:
+
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key
+```
+
+The anon key is safe to expose client-side; row-level security ensures users only ever
+read and write their own data.
+
 ## Project structure
 
 ```
 src/
   landing/   marketing landing page (Background, Phone, content)
-  app/        functional app screens + AppShell + RecipeCard/Modal
-  lib/        store.jsx (state + localStorage), ai.js (client), sample.js (seed data)
+  app/        functional app screens + AppShell + RecipeCard/Modal + AuthModal
+  lib/        store.jsx (state + sync), supabase.js (client), ai.js, sample.js (seed data)
 netlify/
   functions/  recipe.js: server-side OpenAI integration
+supabase/
+  schema.sql: profiles table + row-level security policies
 ```
 
 ## License

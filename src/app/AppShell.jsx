@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { NavLink, Link, Outlet, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useStore } from '../lib/store.jsx'
+import AuthModal from './AuthModal.jsx'
 import './app.css'
 
 const NAV = [
@@ -12,8 +14,12 @@ const NAV = [
 ]
 
 export default function AppShell() {
-  const { state } = useStore()
+  const { state, auth } = useStore()
   const loc = useLocation()
+  const [authOpen, setAuthOpen] = useState(false)
+
+  const signedIn = Boolean(auth.user)
+  const displayName = state.profile.name || auth.user?.email?.split('@')[0] || 'Guest'
 
   return (
     <div className="shell">
@@ -33,15 +39,22 @@ export default function AppShell() {
         </nav>
         <div className="side-foot">
           <div className="side-profile">
-            <div className="side-avatar">{state.profile.name[0]}</div>
+            <div className="side-avatar">{displayName[0]?.toUpperCase()}</div>
             <div>
-              <strong>{state.profile.name}</strong>
-              <span>{state.profile.diet} diet</span>
+              <strong>{displayName}</strong>
+              <span>{signedIn ? 'Synced account' : auth.configured ? 'Guest · not synced' : `${state.profile.diet} diet`}</span>
             </div>
           </div>
+          {auth.configured && (
+            signedIn
+              ? <button className="side-auth" onClick={() => auth.signOut()}>Sign out</button>
+              : <button className="side-auth" onClick={() => setAuthOpen(true)}>Sign in</button>
+          )}
           <Link to="/" className="side-exit">← Landing</Link>
         </div>
       </aside>
+
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
 
       {/* mobile tab bar */}
       <nav className="tabbar">

@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { SAMPLE_RECIPES, SAMPLE_PANTRY, STARTER_GOAL } from './sample.js'
+import { supabase, isSupabaseConfigured } from './supabase.js'
 
 const KEY = 'ruchi-state-v1'
 
@@ -12,6 +13,15 @@ const initial = () => ({
   log: {}, // { 'YYYY-MM-DD': [ {id, title, calories, macros, emoji} ] }
   profile: { name: 'Rishika', diet: 'Balanced', restrictions: [] },
 })
+
+// Only these keys are synced to the cloud; everything else is derived.
+const SYNC_KEYS = ['cookbook', 'pantry', 'goal', 'log', 'profile']
+
+function pickSynced(state) {
+  const out = {}
+  for (const k of SYNC_KEYS) out[k] = state[k]
+  return out
+}
 
 function load() {
   try {
@@ -27,13 +37,121 @@ const StoreCtx = createContext(null)
 
 export function StoreProvider({ children }) {
   const [state, setState] = useState(load)
+  const [user, setUser] = useState(null)
+  const [authReady, setAuthReady] = useState(!isSupabaseConfigured)
 
+  // Guards so the debounced cloud push does not fire during the initial
+  // login hydration (which would clobber remote data with local state).
+  const hydrating = useRef(false)
+  const saveTimer = useRef(null)
+
+  // Always cache to localStorage so guests (and offline reloads) keep data.
   useEffect(() => {
     try { localStorage.setItem(KEY, JSON.stringify(state)) } catch { /* ignore */ }
   }, [state])
 
+  // ---- Supabase auth lifecycle -------------------------------------------
+  useEffect(() => {
+    if (!isSupabaseConfigured) return
+    let active = true
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return
+      setUser(data.session?.user ?? null)
+      setAuthReady(true)
+    })
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => {
+      active = false
+      sub.subscription.unsubscribe()
+    }
+  }, [])
+
+  // On login, pull the cloud row. If it is empty (first login), seed it from
+  // whatever is currently local so the user keeps the recipes they saved as a
+  // guest. Otherwise the cloud copy wins.
+  useEffect(() => {
+    if (!isSupabaseConfigured || !user) return
+    let active = true
+    hydrating.current = true
+
+    ;(async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('data')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      if (!active) return
+
+      if (!error && data?.data && Object.keys(data.data).length) {
+        setState(s => ({ ...initial(), ...data.data, profile: { ...s.profile, ...data.data.profile } }))
+      } else {
+        // No cloud data yet: push the current local state up.
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          data: pickSynced(state),
+          updated_at: new Date().toISOString(),
+        })
+      }
+      // Let one render settle before re-enabling cloud writes.
+      setTimeout(() => { hydrating.current = false }, 0)
+    })()
+
+    return () => { active = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
+
+  // Debounced cloud push whenever synced state changes (logged-in only).
+  useEffect(() => {
+    if (!isSupabaseConfigured || !user || hydrating.current) return
+    clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      supabase.from('profiles').upsert({
+        id: user.id,
+        data: pickSynced(state),
+        updated_at: new Date().toISOString(),
+      }).then(() => {}, () => {})
+    }, 800)
+    return () => clearTimeout(saveTimer.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, user])
+
   const api = {
     state,
+
+    // auth
+    auth: {
+      user,
+      ready: authReady,
+      configured: isSupabaseConfigured,
+      async signUp(email, password, name) {
+        if (!isSupabaseConfigured) throw new Error('Auth is not configured.')
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { name } },
+        })
+        if (error) throw error
+        if (name) setState(s => ({ ...s, profile: { ...s.profile, name } }))
+        return data
+      },
+      async signIn(email, password) {
+        if (!isSupabaseConfigured) throw new Error('Auth is not configured.')
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) throw error
+        return data
+      },
+      async signOut() {
+        if (!isSupabaseConfigured) return
+        await supabase.auth.signOut()
+        setState(load())
+      },
+    },
 
     // cookbook
     saveRecipe(recipe) {
@@ -78,6 +196,9 @@ export function StoreProvider({ children }) {
     },
     setGoal(goal) {
       setState(s => ({ ...s, goal: { ...s.goal, ...goal } }))
+    },
+    setProfile(profile) {
+      setState(s => ({ ...s, profile: { ...s.profile, ...profile } }))
     },
     todayLog() {
       return state.log[todayKey()] || []
