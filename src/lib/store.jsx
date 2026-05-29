@@ -140,7 +140,6 @@ export function StoreProvider({ children }) {
       }).then(() => {}, () => {})
     }, 800)
     return () => clearTimeout(saveTimer.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, user])
 
   const api = {
@@ -263,6 +262,7 @@ export function StoreProvider({ children }) {
   return <StoreCtx.Provider value={api}>{children}</StoreCtx.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useStore() {
   const ctx = useContext(StoreCtx)
   if (!ctx) throw new Error('useStore must be used within StoreProvider')

@@ -1,33 +1,29 @@
-import { StrictMode } from 'react'
+/* eslint-disable react-refresh/only-export-components -- entry module, not a fast-refresh boundary */
+import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
 import Landing from './landing/Landing.jsx'
-import { StoreProvider } from './lib/store.jsx'
-import AppShell from './app/AppShell.jsx'
-import RequireAuth from './app/RequireAuth.jsx'
-import Dashboard from './app/Dashboard.jsx'
-import Discover from './app/Discover.jsx'
-import Pantry from './app/Pantry.jsx'
-import Cookbook from './app/Cookbook.jsx'
-import Health from './app/Health.jsx'
+
+// The entire authenticated app (store, Supabase, shell, screens, AI client) is
+// split into one lazily-loaded chunk so the public landing page stays light.
+const AppRoot = lazy(() => import('./app/AppRoot.jsx'))
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <StoreProvider>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/app" element={<AppShell />}>
-            <Route index element={<RequireAuth><Dashboard /></RequireAuth>} />
-            <Route path="discover" element={<Discover />} />
-            <Route path="pantry" element={<RequireAuth><Pantry /></RequireAuth>} />
-            <Route path="cookbook" element={<RequireAuth><Cookbook /></RequireAuth>} />
-            <Route path="health" element={<RequireAuth><Health /></RequireAuth>} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </StoreProvider>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route
+          path="/app/*"
+          element={
+            <Suspense fallback={<div style={{ minHeight: '100vh' }} />}>
+              <AppRoot />
+            </Suspense>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   </StrictMode>,
 )

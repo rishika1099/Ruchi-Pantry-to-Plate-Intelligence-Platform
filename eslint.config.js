@@ -18,4 +18,9 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // Node contexts: build config, serverless functions, eval + test scripts.
+    files: ['vite.config.js', 'netlify/**/*.js', 'eval/**/*.{js,mjs}', '**/*.test.{js,jsx}'],
+    languageOptions: { globals: { ...globals.node } },
+  },
 ])
